@@ -1,5 +1,3 @@
-// src/components/CurrencyConverter.js
-
 import React, { useState } from 'react';
 import { ExchangeRateFactory } from '../factories/currency/ExchangeRateFactory';
 import { Box, TextField, MenuItem, Button, Typography, Container, CircularProgress } from '@mui/material';
@@ -18,7 +16,6 @@ const CurrencyConverter = () => {
   const [amount, setAmount] = useState(1);
   const [fromCurrency, setFromCurrency] = useState('USD');
   const [toCurrency, setToCurrency] = useState('EUR');
-  const [exchangeRate, setExchangeRate] = useState(null);
   const [currencies] = useState(['USD', 'EUR', 'GBP', 'JPY', 'BRL', 'CAD']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -45,7 +42,7 @@ const CurrencyConverter = () => {
 
     try {
       const rate = await provider.getExchangeRate(fromCurrency, toCurrency);
-      setExchangeRate(rate);
+      // Directly calculate the converted amount without storing exchangeRate
       setConvertedAmount((amount * rate).toFixed(2));
     } catch (e) {
       setError(e.message);
@@ -126,7 +123,7 @@ const CurrencyConverter = () => {
           </TextField>
         </Box>
 
-        {/* New Convert Button */}
+        {/* Convert Button */}
         <Button
           variant="contained"
           color="primary"
