@@ -34,6 +34,19 @@ exports.handler = async (event, context) => {
         const timestampRef = ref(database, `stocks/${stock.symbol}/${currentTimestamp}`);
 
         try {
+            // Log the data before attempting to send it
+            console.log(`Sending latest stock data for ${stock.symbol}:`, {
+                symbol: stock.symbol,
+                currentPrice: stock.regularMarketPrice,
+                change: stock.regularMarketChangePercent,
+                volume: stock.regularMarketVolume,
+                max: stock.regularMarketDayHigh,
+                min: stock.regularMarketDayLow,
+                fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,
+                fiftyTwoWeekLow: stock.fiftyTwoWeekLow,
+                previousClose: stock.regularMarketPreviousClose,
+            });
+
             await set(latestRef, {
                 symbol: stock.symbol,
                 currentPrice: stock.regularMarketPrice,
@@ -46,11 +59,24 @@ exports.handler = async (event, context) => {
                 previousClose: stock.regularMarketPreviousClose,
             });
         } catch (error) {
-            console.error(`Error sending latest stock data for ${stock.symbol} with set:`, error);
+            console.error(`Error sending latest stock data for ${stock.symbol}:`, error);
             return { status: 'failed', symbol: stock.symbol, reason: 'latest data' };
         }
 
         try {
+            // Log the timestamp data before attempting to send it
+            console.log(`Sending timestamped stock data for ${stock.symbol}:`, {
+                symbol: stock.symbol,
+                currentPrice: stock.regularMarketPrice,
+                change: stock.regularMarketChangePercent,
+                volume: stock.regularMarketVolume,
+                max: stock.regularMarketDayHigh,
+                min: stock.regularMarketDayLow,
+                fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,
+                fiftyTwoWeekLow: stock.fiftyTwoWeekLow,
+                previousClose: stock.regularMarketPreviousClose,
+            });
+
             await set(timestampRef, {
                 symbol: stock.symbol,
                 currentPrice: stock.regularMarketPrice,
@@ -63,7 +89,7 @@ exports.handler = async (event, context) => {
                 previousClose: stock.regularMarketPreviousClose,
             });
         } catch (error) {
-            console.error(`Error sending timestamped stock data for ${stock.symbol} with set:`, error);
+            console.error(`Error sending timestamped stock data for ${stock.symbol}:`, error);
             return { status: 'failed', symbol: stock.symbol, reason: 'timestamped data' };
         }
     });
