@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StockPriceFactory } from '../factories/stock/StockPriceFactory';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Typography } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableRow, Paper, CircularProgress, Typography } from '@mui/material';
 
 const StockTable = () => {
   const [stockData, setStockData] = useState([]);
