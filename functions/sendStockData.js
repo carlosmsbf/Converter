@@ -1,16 +1,27 @@
-exports.handler = async (event, context) => {
-  try {
 
-    const response = {
+const { StockPriceFactory } = require('../src/factories/stock/StockPriceFactory');
+const { sendStockData } = require('../src/api/sendStockData');
+
+exports.handler = async (event, context) => {
+  const provider = StockPriceFactory.createProvider('brapi');
+  const stockSymbols = ['ABEV3', 'AZUL4']; // Add more symbols as needed
+
+  try {
+    const stockData = await provider.getStockPrices(stockSymbols);
+
+    for (const stock of stockData) {
+      await sendStockData(stock); // This will send each stock's data to Firebase
+    }
+
+    return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Success' }),
+      body: JSON.stringify({ message: 'Stock data sent successfully' }),
     };
-    return response;
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error sending stock data:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error' }),
+      body: JSON.stringify({ message: 'Error sending stock data' }),
     };
   }
 };
