@@ -1,6 +1,6 @@
 // netlify/functions/sendStockData.js
-const { StockPriceFactory } = require('../factories/stock/StockPriceFactory');
-const { sendStockData } = require('./sendStockData');
+const { StockPriceFactory } = require('../src/factories/stock/StockPriceFactory');
+const { sendStockData } = require('../src/api/sendStockData');
 
 exports.handler = async (event, context) => {
   const provider = StockPriceFactory.createProvider('brapi');

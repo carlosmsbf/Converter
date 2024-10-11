@@ -14,7 +14,7 @@ const currentTimestamp = formatDate(Date.now());
 
 exports.handler = async function (event, context) {
   const provider = StockPriceFactory.createProvider('brapi');
-  const symbols = ['AAPL', 'GOOGL'];  // Add symbols you need
+  const symbols = ['ABEV3', 'AZUL4'];  // Add symbols you need
 
   try {
     const stockData = await provider.getStockPrices(symbols);
