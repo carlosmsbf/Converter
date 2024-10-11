@@ -1,0 +1,13 @@
+[build]
+  functions = "functions"
+  publish = "build"  # For React projects, this points to the directory where the app is built
+
+[functions]
+  # Set timeouts, memory, and other function settings as needed
+  node_bundler = "esbuild"  # This ensures modern bundling for JavaScript functions
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
