@@ -1,5 +1,5 @@
 const { StockPriceFactory } = require('../src/factories/stock/StockPriceFactory'); // Adjust path
-const { database } = require('../firebaseConfig'); // Adjust path
+const { database } = require('../src/firebaseConfig'); // Adjust path
 const { ref, set } = require('firebase/database');
 
 function formatDate(timestamp) {
