@@ -22,10 +22,17 @@ class StockPriceFactory {
   
           if (data.results && data.results.length > 0) {
             const stock = data.results[0];
+            /*const dividends = data.dividendsData.cashDividends[0];*/
             stockData.push({
               symbol: stock.symbol,
               currentPrice: stock.regularMarketPrice,
               change: stock.regularMarketChangePercent,
+              volume: stock.regularMarketVolume, // Corrected "volum" to "volume"
+              max: stock.regularMarketDayHigh,  // Max stock price for the day
+              min: stock.regularMarketDayLow,   // Min stock price for the day
+              fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,  // 52-week high
+              fiftyTwoWeekLow: stock.fiftyTwoWeekLow,    // 52-week low
+              previousClose: stock.regularMarketPreviousClose,  // Yesterday's close price              
             });
           } else {
             console.error(`No stock data found for ${symbol}`);

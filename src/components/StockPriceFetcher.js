@@ -11,10 +11,10 @@ const StockTable = () => {
     const fetchStockData = async () => {
       const provider = StockPriceFactory.createProvider('brapi');
       const stockSymbols = [
-        'BOVESPA', 'ABEV3', 'AZUL4', 'B3SA3', 'BHIA3', 'BBAS3', 'BBDC4', 'BPAC11',
+        'ABEV3', 'AZUL4' /*, 'B3SA3', 'BHIA3', 'BBAS3', 'BBDC4', 'BPAC11',
         'BRAP4', 'BRFS3', 'CBAV3', 'CCRO3', 'CSAN3', 'EMBR3', 'GGBR4', 'ITRI11',
         'ITSA4', 'ITUB4', 'JBSS3', 'KNCA11', 'KNHF11', 'KNHY11', 'AMER3', 'LREN3',
-        'MGLU3', 'PETR4', 'USIM5', 'VALE3', 'VGIR11', 'XPBR31'
+        'MGLU3', 'PETR4', 'USIM5', 'VALE3', 'VGIR11', 'XPBR31'*/
       ];
 
       try {
@@ -44,21 +44,70 @@ const StockTable = () => {
         Stock Prices
       </Typography>
       <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Symbol</TableCell>
-            <TableCell>Price</TableCell>
-            <TableCell>Change (%)</TableCell>
-          </TableRow>
-        </TableHead>
         <TableBody>
-          {stockData.map((stock) => (
-            <TableRow key={stock.symbol}>
-              <TableCell>{stock.symbol}</TableCell>
-              <TableCell>{stock.currentPrice}</TableCell>
-              <TableCell>{stock.change}</TableCell>
-            </TableRow>
-          ))}
+          {/* Symbol Row */}
+          <TableRow>
+            <TableCell variant="head">Symbol</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.symbol}</TableCell>
+            ))}
+          </TableRow>
+          {/* Price Row */}
+          <TableRow>
+            <TableCell variant="head">Price</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.currentPrice}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Max</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.max}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Min</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.min}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Previous Close Price</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.previousClose}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Volume</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.volume}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Max 52 weeks</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.fiftyTwoWeekHigh}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Min 52 weeks</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.fiftyTwoWeekLow}</TableCell>
+            ))}
+          </TableRow>
+          
+          <TableRow>
+            <TableCell variant="head">Change (%)</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.change}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Dividends</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.dividendsRate}</TableCell>
+            ))}
+                    </TableRow>
         </TableBody>
       </Table>
     </TableContainer>

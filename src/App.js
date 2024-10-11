@@ -3,6 +3,8 @@ import CurrencyConverter from './components/CurrencyConverter';
 import { CssBaseline } from '@mui/material';
 import StockPriceFetcher from './components/StockPriceFetcher';
 import { Container } from '@mui/material';
+import StockComponent from './components/StockComponent';
+
 
 function App() {
   return (
@@ -15,6 +17,10 @@ function App() {
       <StockPriceFetcher />
       {/* You can place CurrencyConverter or other components here */}
     </Container>
+    <div className="App">
+      <h1>Firebase Stock App</h1>
+      <StockComponent />
+    </div>
       
     </>
   );
