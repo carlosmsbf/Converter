@@ -64,7 +64,7 @@ exports.handler = async (event, context) => {
             return {
                 statusCode: 500,
                 body: JSON.stringify({
-                    message: `Error sending latest stock data for ${stock.symbol}.`,
+                    message: `Error sending latest stock data for ${stock.symbol}. ${stock.regularMarketPrice}`,
                     error: error.message,
                 }),
             };
