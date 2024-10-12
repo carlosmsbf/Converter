@@ -1,100 +1,117 @@
-const { StockPriceFactory } = require('../src/factories/stock/StockPriceFactory'); // Adjust path
-const { database } = require('../src/firebaseConfig'); // Adjust path
-const { ref, set } = require('firebase/database');
+import React, { useEffect, useState } from 'react';
+import { StockPriceFactory } from '../factories/stock/StockPriceFactory';
+import { Table, TableBody, TableCell, TableContainer, TableRow, Paper, CircularProgress, Typography } from '@mui/material';
 
-function formatDate(timestamp) {
-    const date = new Date(timestamp);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
+const StockTable = () => {
+  const [stockData, setStockData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-const currentTimestamp = formatDate(Date.now());
+  useEffect(() => {
+    const fetchStockData = async () => {
+      const provider = StockPriceFactory.createProvider('brapi');
+      const stockSymbols = [
+        'ABEV3', 'AZUL4' /*, 'B3SA3', 'BHIA3', 'BBAS3', 'BBDC4', 'BPAC11',
+        'BRAP4', 'BRFS3', 'CBAV3', 'CCRO3', 'CSAN3', 'EMBR3', 'GGBR4', 'ITRI11',
+        'ITSA4', 'ITUB4', 'JBSS3', 'KNCA11', 'KNHF11', 'KNHY11', 'AMER3', 'LREN3',
+        'MGLU3', 'PETR4', 'USIM5', 'VALE3', 'VGIR11', 'XPBR31'*/
+      ];
 
-exports.handler = async (event, context) => {
-    const provider = StockPriceFactory.createProvider('brapi');
-    const stockSymbols = ['ABEV3', 'AZUL4']; // Add more symbols as needed
+      try {
+        const data = await provider.getStockPrices(stockSymbols);
+        setStockData(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    try {
-        // Fetch stock data and handle errors
-        let stockData;
-        try {
-            stockData = await provider.getStockPrices(stockSymbols);
-            if (!stockData || stockData.length === 0) {
-                throw new Error('No stock data returned from the API');
-            }
-        } catch (error) {
-            console.error('Error fetching stock data:', error.message);
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ message: 'Error fetching stock data' }),
-            };
-        }
+    fetchStockData();
+  }, []);
 
-        // Ensure stockData is valid and proceed with processing
-        const promises = stockData.map(stock => {
-            // Check if stock properties exist, otherwise log the missing fields
-            const symbol = stock.symbol || 'Unknown';
-            const currentPrice = stock.regularMarketPrice || 'N/A';
-            const change = stock.regularMarketChangePercent || 'N/A';
-            const volume = stock.regularMarketVolume || 'N/A';
-            const max = stock.regularMarketDayHigh || 'N/A';
-            const min = stock.regularMarketDayLow || 'N/A';
-            const fiftyTwoWeekHigh = stock.fiftyTwoWeekHigh || 'N/A';
-            const fiftyTwoWeekLow = stock.fiftyTwoWeekLow || 'N/A';
-            const previousClose = stock.regularMarketPreviousClose || 'N/A';
+  if (loading) {
+    return <CircularProgress />;
+  }
 
-            if (symbol === 'Unknown') {
-                console.error('Stock symbol is undefined for one of the fetched stocks');
-            }
+  if (error) {
+    return <Typography color="error">Error: {error}</Typography>;
+  }
 
-            const latestRef = ref(database, 'stocks/' + symbol + '/latest');
-            const timestampRef = ref(database, `stocks/${symbol}/${currentTimestamp}`);
-
-            // Store data in Firebase, handle errors if any occur
-            return Promise.all([
-                set(latestRef, {
-                    symbol,
-                    currentPrice,
-                    change,
-                    volume,
-                    max,
-                    min,
-                    fiftyTwoWeekHigh,
-                    fiftyTwoWeekLow,
-                    previousClose,
-                }).catch(err => {
-                    console.error(`Error saving latest stock data for ${symbol}:`, err.message);
-                }),
-                set(timestampRef, {
-                    symbol,
-                    currentPrice,
-                    change,
-                    volume,
-                    max,
-                    min,
-                    fiftyTwoWeekHigh,
-                    fiftyTwoWeekLow,
-                    previousClose,
-                }).catch(err => {
-                    console.error(`Error saving timestamped stock data for ${symbol}:`, err.message);
-                }),
-            ]);
-        });
-
-        // Wait for all database writes to complete
-        await Promise.all(promises);
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ message: 'Stock data sent successfully!' }),
-        };
-    } catch (error) {
-        console.error('Error processing stock data:', error.message);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ message: 'Error processing stock data' }),
-        };
-    }
+  return (
+    <TableContainer component={Paper}>
+      <Typography variant="h6" align="center" gutterBottom>
+        Stock Prices
+      </Typography>
+      <Table>
+        <TableBody>
+          {/* Symbol Row */}
+          <TableRow>
+            <TableCell variant="head">Symbol</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.symbol}</TableCell>
+            ))}
+          </TableRow>
+          {/* Price Row */}
+          <TableRow>
+            <TableCell variant="head">Price</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.currentPrice}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Max</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.max}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Min</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.min}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Previous Close Price</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.previousClose}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Volume</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.volume}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Max 52 weeks</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.fiftyTwoWeekHigh}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Min 52 weeks</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.fiftyTwoWeekLow}</TableCell>
+            ))}
+          </TableRow>
+          
+          <TableRow>
+            <TableCell variant="head">Change (%)</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.change}</TableCell>
+            ))}
+          </TableRow>
+          <TableRow>
+            <TableCell variant="head">Dividends</TableCell>
+            {stockData.map((stock) => (
+              <TableCell key={stock.symbol}>{stock.dividendsRate}</TableCell>
+            ))}
+                    </TableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
 };
+
+export default StockTable;
