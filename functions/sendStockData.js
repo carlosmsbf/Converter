@@ -19,21 +19,28 @@ exports.handler = async (event, context) => {
 
     let stockData;
 
+    // Fetch stock data with proper error handling
     try {
         console.log(`Fetching stock prices for symbols: ${stockSymbols.join(', ')}`);
         stockData = await provider.getStockPrices(stockSymbols);
+
+        // Check if stockData is valid
+        if (!stockData || stockData.length === 0) {
+            throw new Error('Stock data is undefined or empty.');
+        }
         console.log("Stock prices fetched successfully:", stockData);
     } catch (error) {
+        console.error(`Error fetching stock prices: ${error.message}`);
         return {
             statusCode: 500,
             body: JSON.stringify({
-                message: `Error fetching stock prices from provider. Step: Fetching stock prices for ${stockSymbols.join(', ')}.`,
-                error: error.toString(),
+                message: `Error fetching stock prices for ${stockSymbols.join(', ')}.`,
+                error: error.message,
             }),
         };
     }
 
-    // Create an array of promises for each stock
+    // Create an array of promises for each stock with individual try-catch blocks
     const promises = stockData.map(async (stock) => {
         const latestRef = ref(database, 'stocks/' + stock.symbol + '/latest');
         const timestampRef = ref(database, `stocks/${stock.symbol}/${currentTimestamp}`);
@@ -42,7 +49,7 @@ exports.handler = async (event, context) => {
             console.log(`Sending latest stock data for ${stock.symbol}`);
             await set(latestRef, {
                 symbol: stock.symbol,
-                currentPrice: 1,
+                currentPrice: stock.regularMarketPrice,
                 change: stock.regularMarketChangePercent,
                 volume: stock.regularMarketVolume,
                 max: stock.regularMarketDayHigh,
@@ -53,11 +60,12 @@ exports.handler = async (event, context) => {
             });
             console.log(`Latest stock data for ${stock.symbol} sent successfully`);
         } catch (error) {
+            console.error(`Error sending latest stock data for ${stock.symbol}: ${error.message}`);
             return {
                 statusCode: 500,
                 body: JSON.stringify({
-                    message: `Error sending latest stock data for ${stock.symbol}. Step: Sending latest data to Firebase.`,
-                    error: error.toString(),
+                    message: `Error sending latest stock data for ${stock.symbol}.`,
+                    error: error.message,
                 }),
             };
         }
@@ -77,11 +85,12 @@ exports.handler = async (event, context) => {
             });
             console.log(`Timestamped stock data for ${stock.symbol} sent successfully`);
         } catch (error) {
+            console.error(`Error sending timestamped stock data for ${stock.symbol}: ${error.message}`);
             return {
                 statusCode: 500,
                 body: JSON.stringify({
-                    message: `Error sending timestamped stock data for ${stock.symbol}. Step: Sending timestamped data to Firebase.`,
-                    error: error.toString(),
+                    message: `Error sending timestamped stock data for ${stock.symbol}.`,
+                    error: error.message,
                 }),
             };
         }
@@ -109,11 +118,12 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({ message: 'Stock data sent successfully!' }),
         };
     } catch (error) {
+        console.error('Error sending stock data:', error.message);
         return {
             statusCode: 500,
             body: JSON.stringify({
                 message: 'Error processing stock data in the final step.',
-                error: error.toString(),
+                error: error.message,
             }),
         };
     }
