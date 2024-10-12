@@ -24,10 +24,12 @@ exports.handler = async (event, context) => {
         stockData = await provider.getStockPrices(stockSymbols);
         console.log("Stock prices fetched successfully:", stockData);
     } catch (error) {
-        console.error('Error fetching stock prices with getStockPrices:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ message: 'Error fetching stock prices' }),
+            body: JSON.stringify({
+                message: `Error fetching stock prices from provider. Step: Fetching stock prices for ${stockSymbols.join(', ')}.`,
+                error: error.toString(),
+            }),
         };
     }
 
@@ -51,8 +53,13 @@ exports.handler = async (event, context) => {
             });
             console.log(`Latest stock data for ${stock.symbol} sent successfully`);
         } catch (error) {
-            console.error(`Error sending latest stock data for ${stock.symbol}:`, error);
-            return { status: 'failed', symbol: stock.symbol, reason: 'latest data' };
+            return {
+                statusCode: 500,
+                body: JSON.stringify({
+                    message: `Error sending latest stock data for ${stock.symbol}. Step: Sending latest data to Firebase.`,
+                    error: error.toString(),
+                }),
+            };
         }
 
         try {
@@ -70,8 +77,13 @@ exports.handler = async (event, context) => {
             });
             console.log(`Timestamped stock data for ${stock.symbol} sent successfully`);
         } catch (error) {
-            console.error(`Error sending timestamped stock data for ${stock.symbol}:`, error);
-            return { status: 'failed', symbol: stock.symbol, reason: 'timestamped data' };
+            return {
+                statusCode: 500,
+                body: JSON.stringify({
+                    message: `Error sending timestamped stock data for ${stock.symbol}. Step: Sending timestamped data to Firebase.`,
+                    error: error.toString(),
+                }),
+            };
         }
     });
 
@@ -79,13 +91,15 @@ exports.handler = async (event, context) => {
     try {
         console.log("Waiting for all stock data to be sent...");
         const results = await Promise.all(promises);
-        const failedStocks = results.filter(result => result && result.status === 'failed');
+        const failedStocks = results.filter(result => result && result.statusCode === 500);
 
         if (failedStocks.length) {
-            console.warn("Some stock data failed to send:", failedStocks);
             return {
                 statusCode: 500,
-                body: JSON.stringify({ message: 'Some stock data failed to send', failedStocks }),
+                body: JSON.stringify({
+                    message: 'Some stock data failed to send.',
+                    failedStocks: failedStocks.map(failure => failure.body),
+                }),
             };
         }
 
@@ -95,10 +109,12 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({ message: 'Stock data sent successfully!' }),
         };
     } catch (error) {
-        console.error('Error in processing all promises:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ message: 'Error in processing stock data' }),
+            body: JSON.stringify({
+                message: 'Error processing stock data in the final step.',
+                error: error.toString(),
+            }),
         };
     }
 };
