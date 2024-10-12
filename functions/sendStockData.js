@@ -2,6 +2,8 @@ const { StockPriceFactory } = require('../src/factories/stock/StockPriceFactory'
 const { database } = require('../src/firebaseConfig'); // Adjust path
 const { ref, set } = require('firebase/database');
 
+
+
 function formatDate(timestamp) {
     const date = new Date(timestamp);
     const year = date.getFullYear();
