@@ -2,8 +2,6 @@ const { StockPriceFactory } = require('../src/factories/stock/StockPriceFactory'
 const { database } = require('../src/firebaseConfig'); // Adjust path
 const { ref, set } = require('firebase/database');
 
-
-
 function formatDate(timestamp) {
     const date = new Date(timestamp);
     const year = date.getFullYear();
@@ -15,118 +13,88 @@ function formatDate(timestamp) {
 const currentTimestamp = formatDate(Date.now());
 
 exports.handler = async (event, context) => {
-    console.log("Starting to fetch stock prices...");
     const provider = StockPriceFactory.createProvider('brapi');
     const stockSymbols = ['ABEV3', 'AZUL4']; // Add more symbols as needed
 
-    let stockData;
-
-    // Fetch stock data with proper error handling
     try {
-        console.log(`Fetching stock prices for symbols: ${stockSymbols.join(', ')}`);
-        stockData = await provider.getStockPrices(stockSymbols);
-
-        // Check if stockData is valid
-        if (!stockData || stockData.length === 0) {
-            throw new Error('Stock data is undefined or empty.');
-        }
-        console.log("Stock prices fetched successfully:", stockData);
-    } catch (error) {
-        console.error(`Error fetching stock prices: ${error.message}`);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-                message: `Error fetching stock prices for ${stockSymbols.join(', ')}.`,
-                error: error.message,
-            }),
-        };
-    }
-
-    // Create an array of promises for each stock with individual try-catch blocks
-    const promises = stockData.map(async (stock) => {
-        const latestRef = ref(database, 'stocks/' + stock.symbol + '/latest');
-        const timestampRef = ref(database, `stocks/${stock.symbol}/${currentTimestamp}`);
-
+        // Fetch stock data and handle errors
+        let stockData;
         try {
-            console.log(`Sending latest stock data for ${stock.symbol}`);
-            await set(latestRef, {
-                symbol: stock.symbol,
-                currentPrice: stock.regularMarketPrice,
-                change: stock.regularMarketChangePercent,
-                volume: stock.regularMarketVolume,
-                max: stock.regularMarketDayHigh,
-                min: stock.regularMarketDayLow,
-                fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,
-                fiftyTwoWeekLow: stock.fiftyTwoWeekLow,
-                previousClose: stock.regularMarketPreviousClose,
-            });
-            console.log(`Latest stock data for ${stock.symbol} sent successfully`);
+            stockData = await provider.getStockPrices(stockSymbols);
+            if (!stockData || stockData.length === 0) {
+                throw new Error('No stock data returned from the API');
+            }
         } catch (error) {
-            console.error(`Error sending latest stock data for ${stock.symbol}: ${error.message}`);
+            console.error('Error fetching stock data:', error.message);
             return {
                 statusCode: 500,
-                body: JSON.stringify({
-                    message: `Error sending latest stock data for ${stock.symbol}. ${stock.regularMarketPrice}`,
-                    error: error.message,
-                }),
+                body: JSON.stringify({ message: 'Error fetching stock data' }),
             };
         }
 
-        try {
-            console.log(`Sending timestamped stock data for ${stock.symbol}`);
-            await set(timestampRef, {
-                symbol: stock.symbol,
-                currentPrice: stock.regularMarketPrice,
-                change: stock.regularMarketChangePercent,
-                volume: stock.regularMarketVolume,
-                max: stock.regularMarketDayHigh,
-                min: stock.regularMarketDayLow,
-                fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,
-                fiftyTwoWeekLow: stock.fiftyTwoWeekLow,
-                previousClose: stock.regularMarketPreviousClose,
-            });
-            console.log(`Timestamped stock data for ${stock.symbol} sent successfully`);
-        } catch (error) {
-            console.error(`Error sending timestamped stock data for ${stock.symbol}: ${error.message}`);
-            return {
-                statusCode: 500,
-                body: JSON.stringify({
-                    message: `Error sending timestamped stock data for ${stock.symbol}.`,
-                    error: error.message,
+        // Ensure stockData is valid and proceed with processing
+        const promises = stockData.map(stock => {
+            // Check if stock properties exist, otherwise log the missing fields
+            const symbol = stock.symbol || 'Unknown';
+            const currentPrice = stock.regularMarketPrice || 'N/A';
+            const change = stock.regularMarketChangePercent || 'N/A';
+            const volume = stock.regularMarketVolume || 'N/A';
+            const max = stock.regularMarketDayHigh || 'N/A';
+            const min = stock.regularMarketDayLow || 'N/A';
+            const fiftyTwoWeekHigh = stock.fiftyTwoWeekHigh || 'N/A';
+            const fiftyTwoWeekLow = stock.fiftyTwoWeekLow || 'N/A';
+            const previousClose = stock.regularMarketPreviousClose || 'N/A';
+
+            if (symbol === 'Unknown') {
+                console.error('Stock symbol is undefined for one of the fetched stocks');
+            }
+
+            const latestRef = ref(database, 'stocks/' + symbol + '/latest');
+            const timestampRef = ref(database, `stocks/${symbol}/${currentTimestamp}`);
+
+            // Store data in Firebase, handle errors if any occur
+            return Promise.all([
+                set(latestRef, {
+                    symbol,
+                    currentPrice,
+                    change,
+                    volume,
+                    max,
+                    min,
+                    fiftyTwoWeekHigh,
+                    fiftyTwoWeekLow,
+                    previousClose,
+                }).catch(err => {
+                    console.error(`Error saving latest stock data for ${symbol}:`, err.message);
                 }),
-            };
-        }
-    });
-
-    // Wait for all database writes to complete
-    try {
-        console.log("Waiting for all stock data to be sent...");
-        const results = await Promise.all(promises);
-        const failedStocks = results.filter(result => result && result.statusCode === 500);
-
-        if (failedStocks.length) {
-            return {
-                statusCode: 500,
-                body: JSON.stringify({
-                    message: 'Some stock data failed to send.',
-                    failedStocks: failedStocks.map(failure => failure.body),
+                set(timestampRef, {
+                    symbol,
+                    currentPrice,
+                    change,
+                    volume,
+                    max,
+                    min,
+                    fiftyTwoWeekHigh,
+                    fiftyTwoWeekLow,
+                    previousClose,
+                }).catch(err => {
+                    console.error(`Error saving timestamped stock data for ${symbol}:`, err.message);
                 }),
-            };
-        }
+            ]);
+        });
 
-        console.log("All stock data sent successfully");
+        // Wait for all database writes to complete
+        await Promise.all(promises);
+
         return {
             statusCode: 200,
             body: JSON.stringify({ message: 'Stock data sent successfully!' }),
         };
     } catch (error) {
-        console.error('Error sending stock data:', error.message);
+        console.error('Error processing stock data:', error.message);
         return {
             statusCode: 500,
-            body: JSON.stringify({
-                message: 'Error processing stock data in the final step.',
-                error: error.message,
-            }),
+            body: JSON.stringify({ message: 'Error processing stock data' }),
         };
     }
 };
