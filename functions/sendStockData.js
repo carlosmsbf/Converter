@@ -42,7 +42,7 @@ exports.handler = async (event, context) => {
             console.log(`Sending latest stock data for ${stock.symbol}`);
             await set(latestRef, {
                 symbol: stock.symbol,
-                currentPrice: stock.regularMarketPrice,
+                currentPrice: 1,
                 change: stock.regularMarketChangePercent,
                 volume: stock.regularMarketVolume,
                 max: stock.regularMarketDayHigh,
