@@ -1,6 +1,6 @@
-// src/components/StockComponent.js
+
 import React, { useState } from 'react';
-import { database } from '..//firebaseConfig'; // Adjust the path if needed
+import { database } from '..//firebaseConfig';
 import { ref, set } from "firebase/database";
 import { StockPriceFactory } from '../factories/stock/StockPriceFactory'; // Adjust path
 

@@ -15,7 +15,6 @@ function App() {
       <Container>
       <h1>Stock Price and Currency App</h1>
       <StockPriceFetcher />
-      {/* You can place CurrencyConverter or other components here */}
     </Container>
     <div className="App">
       <h1>Firebase Stock App</h1>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { StockPriceFactory } from '../factories/stock/StockPriceFactory';
+import { ref, get } from 'firebase/database'; 
+import { database } from '../firebaseConfig'; 
 import { Table, TableBody, TableCell, TableContainer, TableRow, Paper, CircularProgress, Typography } from '@mui/material';
 
 const StockTable = () => {
@@ -9,19 +10,26 @@ const StockTable = () => {
 
   useEffect(() => {
     const fetchStockData = async () => {
-      const provider = StockPriceFactory.createProvider('brapi');
-      const stockSymbols = [
-        'ABEV3', 'AZUL4' /*, 'B3SA3', 'BHIA3', 'BBAS3', 'BBDC4', 'BPAC11',
-        'BRAP4', 'BRFS3', 'CBAV3', 'CCRO3', 'CSAN3', 'EMBR3', 'GGBR4', 'ITRI11',
-        'ITSA4', 'ITUB4', 'JBSS3', 'KNCA11', 'KNHF11', 'KNHY11', 'AMER3', 'LREN3',
-        'MGLU3', 'PETR4', 'USIM5', 'VALE3', 'VGIR11', 'XPBR31'*/
-      ];
+      const stockSymbols = ['ABEV3', 'AZUL4' /*, Add more symbols here*/];
+      const stockPromises = stockSymbols.map(async (symbol) => {
+        const dbRef = ref(database, `stocks/${symbol}/latest`);
+        try {
+          const snapshot = await get(dbRef);
+          if (snapshot.exists()) {
+            return { symbol, ...snapshot.val() };
+          } else {
+            return { symbol, error: 'No data available' };
+          }
+        } catch (err) {
+          return { symbol, error: err.message };
+        }
+      });
 
       try {
-        const data = await provider.getStockPrices(stockSymbols);
-        setStockData(data);
+        const data = await Promise.all(stockPromises);
+        setStockData(data); 
       } catch (err) {
-        setError(err.message);
+        setError(err.message); 
       } finally {
         setLoading(false);
       }
@@ -41,7 +49,7 @@ const StockTable = () => {
   return (
     <TableContainer component={Paper}>
       <Typography variant="h6" align="center" gutterBottom>
-        Stock Prices
+        Latest Stock Prices
       </Typography>
       <Table>
         <TableBody>
@@ -56,58 +64,75 @@ const StockTable = () => {
           <TableRow>
             <TableCell variant="head">Price</TableCell>
             {stockData.map((stock) => (
-              <TableCell key={stock.symbol}>{stock.currentPrice}</TableCell>
+              <TableCell key={stock.symbol}>
+                {stock.currentPrice ? stock.currentPrice : 'N/A'}
+              </TableCell>
             ))}
           </TableRow>
           <TableRow>
             <TableCell variant="head">Max</TableCell>
             {stockData.map((stock) => (
-              <TableCell key={stock.symbol}>{stock.max}</TableCell>
+              <TableCell key={stock.symbol}>
+                {stock.max ? stock.max : 'N/A'}
+              </TableCell>
             ))}
           </TableRow>
           <TableRow>
             <TableCell variant="head">Min</TableCell>
             {stockData.map((stock) => (
-              <TableCell key={stock.symbol}>{stock.min}</TableCell>
+              <TableCell key={stock.symbol}>
+                {stock.min ? stock.min : 'N/A'}
+              </TableCell>
             ))}
           </TableRow>
           <TableRow>
             <TableCell variant="head">Previous Close Price</TableCell>
             {stockData.map((stock) => (
-              <TableCell key={stock.symbol}>{stock.previousClose}</TableCell>
+              <TableCell key={stock.symbol}>
+                {stock.previousClose ? stock.previousClose : 'N/A'}
+              </TableCell>
             ))}
           </TableRow>
           <TableRow>
             <TableCell variant="head">Volume</TableCell>
             {stockData.map((stock) => (
-              <TableCell key={stock.symbol}>{stock.volume}</TableCell>
+              <TableCell key={stock.symbol}>
+                {stock.volume ? stock.volume : 'N/A'}
+              </TableCell>
             ))}
           </TableRow>
           <TableRow>
             <TableCell variant="head">Max 52 weeks</TableCell>
             {stockData.map((stock) => (
-              <TableCell key={stock.symbol}>{stock.fiftyTwoWeekHigh}</TableCell>
+              <TableCell key={stock.symbol}>
+                {stock.fiftyTwoWeekHigh ? stock.fiftyTwoWeekHigh : 'N/A'}
+              </TableCell>
             ))}
           </TableRow>
           <TableRow>
             <TableCell variant="head">Min 52 weeks</TableCell>
             {stockData.map((stock) => (
-              <TableCell key={stock.symbol}>{stock.fiftyTwoWeekLow}</TableCell>
+              <TableCell key={stock.symbol}>
+                {stock.fiftyTwoWeekLow ? stock.fiftyTwoWeekLow : 'N/A'}
+              </TableCell>
             ))}
           </TableRow>
-          
           <TableRow>
             <TableCell variant="head">Change (%)</TableCell>
             {stockData.map((stock) => (
-              <TableCell key={stock.symbol}>{stock.change}</TableCell>
+              <TableCell key={stock.symbol}>
+                {stock.change ? stock.change : 'N/A'}
+              </TableCell>
             ))}
           </TableRow>
           <TableRow>
             <TableCell variant="head">Dividends</TableCell>
             {stockData.map((stock) => (
-              <TableCell key={stock.symbol}>{stock.dividendsRate}</TableCell>
+              <TableCell key={stock.symbol}>
+                {stock.dividendsRate ? stock.dividendsRate : 'N/A'}
+              </TableCell>
             ))}
-                    </TableRow>
+          </TableRow>
         </TableBody>
       </Table>
     </TableContainer>
