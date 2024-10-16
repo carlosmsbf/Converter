@@ -35,15 +35,16 @@ exports.handler = async (event, context) => {
         // Ensure stockData is valid and proceed with processing
         const promises = stockData.map(stock => {
             // Check if stock properties exist, otherwise log the missing fields
-            const symbol = stock.symbol || 'Unknown';
-            const currentPrice = stock.regularMarketPrice || 'N/A';
-            const change = stock.regularMarketChangePercent || 'N/A';
-            const volume = stock.regularMarketVolume || 'N/A';
-            const max = stock.regularMarketDayHigh || 'N/A';
-            const min = stock.regularMarketDayLow || 'N/A';
-            const fiftyTwoWeekHigh = stock.fiftyTwoWeekHigh || 'N/A';
-            const fiftyTwoWeekLow = stock.fiftyTwoWeekLow || 'N/A';
-            const previousClose = stock.regularMarketPreviousClose || 'N/A';
+            const symbol = stock.symbol;
+            const currentPrice = stock.regularMarketPrice;
+            const change = stock.regularMarketChangePercent;
+            const volume = stock.regularMarketVolume;
+            const max = stock.regularMarketDayHigh;
+            const min = stock.regularMarketDayLow;
+            const fiftyTwoWeekHigh = stock.fiftyTwoWeekHigh;
+            const fiftyTwoWeekLow = stock.fiftyTwoWeekLow;
+            const previousClose = stock.regularMarketPreviousClose;
+
 
             if (symbol === 'Unknown') {
                 console.error('Stock symbol is undefined for one of the fetched stocks');
@@ -51,6 +52,8 @@ exports.handler = async (event, context) => {
 
             const latestRef = ref(database, 'stocks/' + symbol + '/latest');
             const timestampRef = ref(database, `stocks/${symbol}/${currentTimestamp}`);
+            
+
 
             // Store data in Firebase, handle errors if any occur
             return Promise.all([

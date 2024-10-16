@@ -65,7 +65,7 @@ const StockTable = () => {
             <TableCell variant="head">Price</TableCell>
             {stockData.map((stock) => (
               <TableCell key={stock.symbol}>
-                {stock.currentPrice ? stock.currentPrice : 'N/A'}
+                {stock.currentPrice ? stock.currentPrice : '-'}
               </TableCell>
             ))}
           </TableRow>
@@ -73,7 +73,7 @@ const StockTable = () => {
             <TableCell variant="head">Max</TableCell>
             {stockData.map((stock) => (
               <TableCell key={stock.symbol}>
-                {stock.max ? stock.max : 'N/A'}
+                {stock.max ? stock.max : '-'}
               </TableCell>
             ))}
           </TableRow>
@@ -81,7 +81,7 @@ const StockTable = () => {
             <TableCell variant="head">Min</TableCell>
             {stockData.map((stock) => (
               <TableCell key={stock.symbol}>
-                {stock.min ? stock.min : 'N/A'}
+                {stock.min ? stock.min : '-'}
               </TableCell>
             ))}
           </TableRow>
@@ -89,7 +89,7 @@ const StockTable = () => {
             <TableCell variant="head">Previous Close Price</TableCell>
             {stockData.map((stock) => (
               <TableCell key={stock.symbol}>
-                {stock.previousClose ? stock.previousClose : 'N/A'}
+                {stock.previousClose ? stock.previousClose : '-'}
               </TableCell>
             ))}
           </TableRow>
@@ -97,7 +97,7 @@ const StockTable = () => {
             <TableCell variant="head">Volume</TableCell>
             {stockData.map((stock) => (
               <TableCell key={stock.symbol}>
-                {stock.volume ? stock.volume : 'N/A'}
+                {stock.volume ? stock.volume : '-'}
               </TableCell>
             ))}
           </TableRow>
@@ -105,7 +105,7 @@ const StockTable = () => {
             <TableCell variant="head">Max 52 weeks</TableCell>
             {stockData.map((stock) => (
               <TableCell key={stock.symbol}>
-                {stock.fiftyTwoWeekHigh ? stock.fiftyTwoWeekHigh : 'N/A'}
+                {stock.fiftyTwoWeekHigh ? stock.fiftyTwoWeekHigh : '-'}
               </TableCell>
             ))}
           </TableRow>
@@ -113,7 +113,7 @@ const StockTable = () => {
             <TableCell variant="head">Min 52 weeks</TableCell>
             {stockData.map((stock) => (
               <TableCell key={stock.symbol}>
-                {stock.fiftyTwoWeekLow ? stock.fiftyTwoWeekLow : 'N/A'}
+                {stock.fiftyTwoWeekLow ? stock.fiftyTwoWeekLow : '-'}
               </TableCell>
             ))}
           </TableRow>
@@ -121,7 +121,7 @@ const StockTable = () => {
             <TableCell variant="head">Change (%)</TableCell>
             {stockData.map((stock) => (
               <TableCell key={stock.symbol}>
-                {stock.change ? stock.change : 'N/A'}
+                {stock.change ? stock.change : '-'}
               </TableCell>
             ))}
           </TableRow>
@@ -129,7 +129,7 @@ const StockTable = () => {
             <TableCell variant="head">Dividends</TableCell>
             {stockData.map((stock) => (
               <TableCell key={stock.symbol}>
-                {stock.dividendsRate ? stock.dividendsRate : 'N/A'}
+                {stock.dividendsRate ? stock.dividendsRate : '-'}
               </TableCell>
             ))}
           </TableRow>
