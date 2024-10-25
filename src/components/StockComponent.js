@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { database } from '..//firebaseConfig';
 import { ref, set } from "firebase/database";
@@ -14,23 +13,38 @@ function formatDate(timestamp) {
 
 const currentTimestamp = formatDate(Date.now());
 
-const stocksSymbol = ['ABEV3', 'AZUL4', 'B3SA3', 'BHIA3', 'BBAS3', 'BBDC4', 'BPAC11',
-        'BRAP4', 'BRFS3', 'CBAV3', 'CCRO3', 'CSAN3', 'EMBR3', 'GGBR4', 'ITRI11',
-        'ITSA4', 'ITUB4', 'JBSS3', 'KNCA11', 'KNHF11', 'KNHY11', 'AMER3', 'LREN3',
-        'MGLU3', 'PETR4', 'USIM5', 'VALE3', 'VGIR11', 'XPBR31'];
+const stocksSymbol = ['ABEV3', 'AZUL4'/*, 'B3SA3', 'BHIA3', 'BBAS3', 'BBDC4', 'BPAC11',
+    'BRAP4', 'BRFS3', 'CBAV3', 'CCRO3', 'CSAN3', 'EMBR3', 'GGBR4', 'ITRI11',
+    'ITSA4', 'ITUB4', 'JBSS3', 'KNCA11', 'KNHF11', 'KNHY11', 'AMER3', 'LREN3',
+    'MGLU3', 'PETR4', 'USIM5', 'VALE3', 'VGIR11', 'XPBR31'*/];
 
 const StockComponent = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    const fetchDividends = async (symbol) => {
+        const dividendsProvider = StockPriceFactory.createProvider('alphavantage');
+        try {
+            const dividendData = await dividendsProvider.getDividends(symbol); // Fetch dividends data
+            return dividendData;
+        } catch (error) {
+            console.error(`Error fetching dividends for ${symbol}:`, error);
+            return null; // Return null if there was an error
+        }
+    };
+
     const writeStockData = async () => {
         const provider = StockPriceFactory.createProvider('brapi');
         try {
-            // Fetch stock data using the symbols you're interested in
-            const stockData = await provider.getStockPrices(stocksSymbol); // Add symbols as needed
+            const stockData = await provider.getStockPrices(stocksSymbol);
+            const dividendPromises = stockData.map(stock => fetchDividends(stock.symbol));
+
+            // Fetch all dividends in parallel
+            const dividends = await Promise.all(dividendPromises);
 
             // Loop through the fetched data and save each stock to Firebase
-            stockData.forEach(stock => {
+            stockData.forEach((stock, index) => {
+                const lastDividendValue = dividends[index] ? dividends[index].lastDividendValue : null; // Get the corresponding dividend value
                 set(ref(database, 'stocks/' + stock.symbol + '/latest'), {
                     symbol: stock.symbol,
                     currentPrice: stock.currentPrice,
@@ -41,7 +55,7 @@ const StockComponent = () => {
                     fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,
                     fiftyTwoWeekLow: stock.fiftyTwoWeekLow,
                     previousClose: stock.previousClose,
-                    lastDividendValue: stock.lastDividendValue
+                    lastDividendValue: lastDividendValue // Add the fetched dividend value
                 }).then(() => {
                     console.log(`Data saved for ${stock.symbol}`);
                 }).catch((error) => {
@@ -57,12 +71,15 @@ const StockComponent = () => {
     const writeStockDataWithTimeStamp = async () => {
         const provider = StockPriceFactory.createProvider('brapi');
         try {
-            // Fetch stock data using the symbols you're interested in
-            const stockData = await provider.getStockPrices(stocksSymbol); // Add symbols as needed
+            const stockData = await provider.getStockPrices(stocksSymbol);
+            const dividendPromises = stockData.map(stock => fetchDividends(stock.symbol));
 
-            // Loop through the fetched data and save each stock to Firebase
-            stockData.forEach(stock => {
-                set(ref(database, `stocks/${stock.symbol}/${currentTimestamp}`), { // Using template literals
+            // Fetch all dividends in parallel
+            const dividends = await Promise.all(dividendPromises);
+
+            stockData.forEach((stock, index) => {
+                const lastDividendValue = dividends[index] ? dividends[index].lastDividendValue : null; // Get the corresponding dividend value
+                set(ref(database, `stocks/${stock.symbol}/${currentTimestamp}`), {
                     symbol: stock.symbol,
                     currentPrice: stock.currentPrice,
                     change: stock.change,
@@ -72,7 +89,7 @@ const StockComponent = () => {
                     fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,
                     fiftyTwoWeekLow: stock.fiftyTwoWeekLow,
                     previousClose: stock.previousClose,
-                    lastDividendValue: stock.lastDividendValue
+                    lastDividendValue: lastDividendValue // Add the fetched dividend value
                 }).then(() => {
                     console.log(`Data saved for ${stock.symbol} with timestamp`);
                 }).catch((error) => {
