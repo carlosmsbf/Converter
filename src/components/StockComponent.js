@@ -23,10 +23,21 @@ const StockComponent = () => {
     const [error, setError] = useState(null);
 
     const fetchDividends = async (symbol) => {
-        const dividendsProvider = StockPriceFactory.createProvider('alphavantage');
+        const apiKey = '95DG6K3EICPXBOC1'; // Replace with your actual Alpha Vantage API key
+        const url = `https://www.alphavantage.co/query?function=DIVIDEND&symbol=${symbol}&apikey=${apiKey}`;
+    
         try {
-            const dividendData = await dividendsProvider.getDividends(symbol); // Fetch dividends data
-            return dividendData;
+            const response = await fetch(url);
+            const data = await response.json();
+    
+            // Check for the correct structure in the API response
+            if (data && data.dividends) {
+                console.log(`Dividend data for ${symbol}:`, data);
+                return {
+                    lastDividendValue: data.dividends[0]?.amount // Adjust based on actual API response structure
+                };
+            }
+            return null;
         } catch (error) {
             console.error(`Error fetching dividends for ${symbol}:`, error);
             return null; // Return null if there was an error
