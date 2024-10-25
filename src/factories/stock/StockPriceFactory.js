@@ -22,7 +22,7 @@ class StockPriceFactory {
   
           if (data.results && data.results.length > 0) {
             const stock = data.results[0];
-            const stockD = data.dividendsData;
+            const stockD = data;
 
             console.log(`Dividend data for ${symbol}:`, stockD);
             console.log(`Dividend data for ${symbol}:`, stockD.cashDividends[0].rate);
