@@ -17,12 +17,12 @@ class StockPriceFactory {
       // Loop through the stock symbols and fetch each one by one
       for (const symbol of symbols) {
         try {
-          const response = await fetch(`https://brapi.dev/api/quote/${symbol},^BVSP?range=5d&interval=1d&fundamental=true&dividends=true&modules=balanceSheetHistory&token=97uAUERxFJZazo9i3xKvGR`);
+          const response = await fetch(`https://brapi.dev/api/quote/${symbol}?dividends=true&token=97uAUERxFJZazo9i3xKvGR`);
           const data = await response.json();
   
           if (data.results && data.results.length > 0) {
             const stock = data.results[0];
-            const stockD = data;
+            const stockD = data.dividendsData;
 
             console.log(`Dividend data for ${symbol}:`, stockD);
             console.log(`Dividend data for ${symbol}:`, stockD.cashDividends[0].rate);
