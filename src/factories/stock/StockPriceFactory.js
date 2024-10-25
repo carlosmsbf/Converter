@@ -17,7 +17,7 @@ class StockPriceFactory {
       // Loop through the stock symbols and fetch each one by one
       for (const symbol of symbols) {
         try {
-          const response = await fetch(`https://brapi.dev/api/quote/${symbol}?fundamental=true&token=97uAUERxFJZazo9i3xKvGR`);
+          const response = await fetch(`https://brapi.dev/api/quote/${symbol}?fundamental=true&dividends=true&token=97uAUERxFJZazo9i3xKvGR`);
           const data = await response.json();
   
           if (data.results && data.results.length > 0) {
