@@ -30,6 +30,7 @@ exports.handler = async function (event, context) {
         fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,
         fiftyTwoWeekLow: stock.fiftyTwoWeekLow,
         previousClose: stock.regularMarketPreviousClose,
+        lastDividendValue: stock.lastDividendValue
       });
     });
 
@@ -44,6 +45,7 @@ exports.handler = async function (event, context) {
           fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,
           fiftyTwoWeekLow: stock.fiftyTwoWeekLow,
           previousClose: stock.regularMarketPreviousClose,
+          lastDividendValue: stock.lastDividendValue
         });
       });
 

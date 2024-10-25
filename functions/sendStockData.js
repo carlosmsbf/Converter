@@ -44,6 +44,7 @@ exports.handler = async (event, context) => {
             const fiftyTwoWeekHigh = stock.fiftyTwoWeekHigh || 'N/A';
             const fiftyTwoWeekLow = stock.fiftyTwoWeekLow || 'N/A';
             const previousClose = stock.previousClose || 'N/A';
+            const lastDividendValue = stock.lastDividendValue || 'N/A';
 
 
             if (symbol === 'Unknown') {
@@ -67,6 +68,7 @@ exports.handler = async (event, context) => {
                     fiftyTwoWeekHigh,
                     fiftyTwoWeekLow,
                     previousClose,
+                    lastDividendValue,
                 }).catch(err => {
                     console.error(`Error saving latest stock data for ${symbol}:`, err.message);
                 }),
@@ -80,6 +82,7 @@ exports.handler = async (event, context) => {
                     fiftyTwoWeekHigh,
                     fiftyTwoWeekLow,
                     previousClose,
+                    lastDividendValue
                 }).catch(err => {
                     console.error(`Error saving timestamped stock data for ${symbol}:`, err.message);
                 }),

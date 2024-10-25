@@ -37,7 +37,8 @@ const StockComponent = () => {
                     min: stock.min,
                     fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,
                     fiftyTwoWeekLow: stock.fiftyTwoWeekLow,
-                    previousClose: stock.previousClose
+                    previousClose: stock.previousClose,
+                    lastDividendValue: stock.lastDividendValue
                 }).then(() => {
                     console.log(`Data saved for ${stock.symbol}`);
                 }).catch((error) => {
@@ -67,7 +68,8 @@ const StockComponent = () => {
                     min: stock.min,
                     fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,
                     fiftyTwoWeekLow: stock.fiftyTwoWeekLow,
-                    previousClose: stock.previousClose
+                    previousClose: stock.previousClose,
+                    lastDividendValue: stock.lastDividendValue
                 }).then(() => {
                     console.log(`Data saved for ${stock.symbol} with timestamp`);
                 }).catch((error) => {

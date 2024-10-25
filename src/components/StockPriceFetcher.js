@@ -129,7 +129,7 @@ const StockTable = () => {
             <TableCell variant="head">Dividends</TableCell>
             {stockData.map((stock) => (
               <TableCell key={stock.symbol}>
-                {stock.dividendsRate ? stock.dividendsRate : '-'}
+                {stock.lastDividendValue ? stock.lastDividendValue : '-'}
               </TableCell>
             ))}
           </TableRow>
