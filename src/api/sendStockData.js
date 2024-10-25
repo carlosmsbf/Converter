@@ -14,7 +14,10 @@ const currentTimestamp = formatDate(Date.now());
 
 exports.handler = async function (event, context) {
   const provider = StockPriceFactory.createProvider('brapi');
-  const symbols = ['ABEV3', 'AZUL4'];  // Add symbols you need
+  const symbols = ['ABEV3', 'AZUL4', 'B3SA3', 'BHIA3', 'BBAS3', 'BBDC4', 'BPAC11',
+        'BRAP4', 'BRFS3', 'CBAV3', 'CCRO3', 'CSAN3', 'EMBR3', 'GGBR4', 'ITRI11',
+        'ITSA4', 'ITUB4', 'JBSS3', 'KNCA11', 'KNHF11', 'KNHY11', 'AMER3', 'LREN3',
+        'MGLU3', 'PETR4', 'USIM5', 'VALE3', 'VGIR11', 'XPBR31'];  // Add symbols you need
 
   try {
     const stockData = await provider.getStockPrices(symbols);
