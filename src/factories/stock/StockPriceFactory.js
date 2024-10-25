@@ -33,7 +33,7 @@ class StockPriceFactory {
               fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,  // 52-week high
               fiftyTwoWeekLow: stock.fiftyTwoWeekLow,    // 52-week low
               previousClose: stock.regularMarketPreviousClose,  // Yesterday's close price
-              lastDividendValue: stock.dividendsData.cashDividends[0].paymentDate.rate        
+              lastDividendValue: stock.dividendsData.cashDividends[0].rate        
             });
           } else {
             console.error(`No stock data found for ${symbol}`);
